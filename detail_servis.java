@@ -1,3 +1,4 @@
+// Kelas detail_servis merepresentasikan data detail servis pada booking
 public class detail_servis {
     private int idDetail, idBooking, idJenisServis;
 

@@ -1,5 +1,6 @@
 import java.sql.Time;
 
+// Kelas jenis_servis merepresentasikan data jenis servis
 public class jenis_servis {
     private int idJenisServis, harga;
     private String NamaServis;

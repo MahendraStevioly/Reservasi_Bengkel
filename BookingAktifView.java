@@ -1,5 +1,6 @@
 import java.sql.*;
 
+// Kelas BookingAktifView digunakan untuk menampilkan daftar booking aktif dari view v_booking_aktif
 public class BookingAktifView {
     public static void tampilkanBookingAktif(Connection conn) {
         String sql = "SELECT * FROM v_booking_aktif";

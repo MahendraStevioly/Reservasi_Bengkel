@@ -2,6 +2,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// Kelas userDAO untuk operasi database terkait user (CRUD user, validasi, dsb)
 public class userDAO {
     //create
     public void createuser (User user) throws SQLException {

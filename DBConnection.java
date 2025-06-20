@@ -2,6 +2,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+// Kelas DBConnection untuk mengelola koneksi ke database MySQL
 public class DBConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/bengkel_mobil?useSSL=false&serverTimezone=UTC";
     private static final String USER = "root";

@@ -1,3 +1,4 @@
+// Kelas mobil merepresentasikan data mobil pelanggan
 public class mobil {
     private int idMobil, tahun, fk_user;
     private String merk, tipe;

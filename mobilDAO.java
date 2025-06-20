@@ -1,6 +1,8 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+// Kelas mobilDAO untuk operasi database terkait data mobil
 public class mobilDAO {
 //create
     public void addMobil (mobil Mobil) throws SQLException {

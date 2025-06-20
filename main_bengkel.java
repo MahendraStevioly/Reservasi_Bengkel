@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+// Kelas utama aplikasi Bengkel Mobil
+// Menyediakan menu admin dan pelanggan untuk mengelola user, mobil, teknisi, jenis servis, booking, dan laporan
+// Dibawah ini adalah struktur utama dan penjelasan setiap metode
 public class main_bengkel {
     private static Scanner scanner = new Scanner(System.in);
     private static userDAO userDAO = new userDAO();

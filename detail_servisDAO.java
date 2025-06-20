@@ -2,6 +2,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// Kelas detail_servisDAO untuk operasi database terkait detail servis
 public class detail_servisDAO {
     //create
     public void createDetailServis(detail_servis Detail_servis, Connection conn) throws SQLException {

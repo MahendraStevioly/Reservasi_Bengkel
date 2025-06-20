@@ -1,3 +1,4 @@
+// Kelas User merepresentasikan data user/admin/pelanggan
 public class User{
     public enum Role {
         ADMIN("admin"), 

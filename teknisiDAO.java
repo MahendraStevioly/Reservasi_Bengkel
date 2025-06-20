@@ -2,6 +2,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// Kelas teknisiDAO untuk operasi database terkait teknisi
 public class teknisiDAO {
     //create
     public void createTeknisi(String nama) {

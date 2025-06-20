@@ -1,6 +1,8 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+// Kelas jenis_servisDAO untuk operasi database terkait jenis servis
 public class jenis_servisDAO {
     //create
     public void createJenisServis (jenis_servis Jenis_servis) throws SQLException {

@@ -1,5 +1,6 @@
 import java.sql.*;
 
+// Kelas report berisi metode untuk menampilkan berbagai laporan dan ringkasan data
 public class report {
     public static void tampilkanLaporanServisTerjual(Connection conn) {
         String sql = "WITH total_servis AS (\n" +

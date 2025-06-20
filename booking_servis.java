@@ -1,6 +1,7 @@
 import java.sql.Date;
 import java.sql.Time;
 
+// Kelas booking_servis merepresentasikan data booking servis
 public class booking_servis {
     private int idBooking, idMobil, idTeknisi, no_transaksi;
     private Date tanggal;

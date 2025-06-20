@@ -2,6 +2,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// Kelas booking_servisDAO untuk operasi database terkait booking servis
 public class booking_servisDAO {
 //create
     public void createBooking (booking_servis Booking_servis) throws SQLException {

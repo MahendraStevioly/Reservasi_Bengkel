@@ -1,5 +1,4 @@
-
-
+// Kelas teknisi merepresentasikan data teknisi bengkel
 public class teknisi {
     private int idTeknisi;
     private String nama, status;
