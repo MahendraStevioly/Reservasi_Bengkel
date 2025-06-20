@@ -9,8 +9,16 @@ import java.util.List;
 import java.util.Scanner;
 
 // Kelas utama aplikasi Bengkel Mobil
-// Menyediakan menu admin dan pelanggan untuk mengelola user, mobil, teknisi, jenis servis, booking, dan laporan
-// Dibawah ini adalah struktur utama dan penjelasan setiap metode
+// -----------------------------------
+// Program dimulai dari method main().
+// 1. Menampilkan menu login.
+// 2. Setelah login, user diarahkan ke menu sesuai peran (admin/pelanggan).
+// 3. Menu admin: kelola user, mobil, teknisi, jenis servis, booking, laporan.
+// 4. Menu pelanggan: kelola mobil sendiri, booking, riwayat, pembatalan.
+// 5. Setiap menu memiliki fungsi/metode tersendiri.
+// 6. Koneksi database dikelola oleh DBConnection.
+//
+// Penjelasan lebih detail diberikan pada setiap blok kode utama di bawah ini.
 public class main_bengkel {
     private static Scanner scanner = new Scanner(System.in);
     private static userDAO userDAO = new userDAO();
@@ -21,7 +29,16 @@ public class main_bengkel {
     private static detail_servisDAO detailServisDAO = new detail_servisDAO();
     private static User currentUser = null;
 
+    // =====================
+    // Fungsi main()
+    // =====================
+    // Entry point aplikasi. Menampilkan menu utama (Login/Keluar).
+    // Jika login berhasil, user diarahkan ke menu sesuai peran.
+    // Jika memilih keluar, aplikasi berhenti.
+    // =====================
     public static void main(String[] args) {
+        // Entry point aplikasi
+        // Menampilkan menu utama: Login atau Keluar
         boolean running = true;
         while (running) {
             System.out.println("\n=== BENGKEL MOBIL ===");
@@ -30,13 +47,15 @@ public class main_bengkel {
             System.out.print("Pilih menu: ");
             
             int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            scanner.nextLine(); // konsumsi newline
 
             switch (choice) {
                 case 1:
+                    // Proses login user
                     login();
                     break;
                 case 2:
+                    // Keluar dari aplikasi
                     running = false;
                     System.out.println("Terima kasih telah menggunakan aplikasi!");
                     break;
@@ -46,21 +65,32 @@ public class main_bengkel {
         }
     }
 
+    // =====================
+    // Fungsi login()
+    // =====================
+    // Meminta username dan password dari user.
+    // Melakukan autentikasi ke database.
+    // Jika berhasil, arahkan ke menu admin/pelanggan sesuai peran.
+    // Jika gagal, tampilkan pesan error.
+    // =====================
     private static void login() {
+        // Menu login: meminta username dan password
         System.out.println("\n=== LOGIN ===");
         System.out.print("Username: ");
         String username = scanner.nextLine();
         System.out.print("Password: ");
         String password = scanner.nextLine();
 
-        // Use optimized authentication method
+        // Autentikasi user ke database
         User user = userDAO.authenticateUser(username, password);
         if (user != null) {
             currentUser = user;
             if (user.getrole() == User.Role.ADMIN) {
+                // Jika admin, tampilkan menu admin
                 System.out.println("Login berhasil! Selamat datang, Admin.");
                 adminMenu();
             } else if (user.getrole() == User.Role.PELANGGAN) {
+                // Jika pelanggan, tampilkan menu pelanggan
                 System.out.println("Login berhasil! Selamat datang, " + user.getnama() + ".");
                 if (password.trim().isEmpty()) {
                     System.out.println("Info: Anda login tanpa password. Untuk keamanan, sebaiknya set password.");
@@ -68,11 +98,25 @@ public class main_bengkel {
                 menuPelanggan(scanner, currentUser);
             }
         } else {
+            // Jika gagal login
             System.out.println("Login gagal! Username atau password salah.");
             System.out.println("Catatan: Pelanggan dapat login tanpa password jika belum diset.");
         }
     }
 
+    // =====================
+    // Fungsi adminMenu()
+    // =====================
+    // Menampilkan menu khusus admin:
+    // 1. Kelola User: CRUD user admin/pelanggan
+    // 2. Kelola Mobil: Melihat/menghapus data mobil pelanggan
+    // 3. Kelola Teknisi: CRUD teknisi
+    // 4. Kelola Jenis Servis: CRUD jenis servis
+    // 5. Kelola Booking: Melihat, memproses, menyelesaikan, menolak booking
+    // 6. Riwayat Transaksi: Melihat riwayat transaksi dan laporan servis
+    // 7. Logout
+    // Setiap menu memanggil fungsi terkait
+    // =====================
     private static void adminMenu() {
         while (true) {
             System.out.println("\n=== MENU ADMIN ===");
@@ -128,6 +172,17 @@ public class main_bengkel {
         }
     }
 
+    // =====================
+    // Fungsi menuPelanggan()
+    // =====================
+    // Menampilkan menu khusus pelanggan:
+    // 1. Lihat Mobil Saya: Melihat daftar mobil milik user
+    // 2. Tambah Mobil: Menambah data mobil baru
+    // 3. Tambah Booking: Booking servis untuk mobil terdaftar
+    // 4. Lihat Riwayat Booking: Melihat riwayat booking user
+    // 5. Batalkan Booking: Membatalkan booking dengan status tertentu
+    // 6. Logout
+    // =====================
     private static void menuPelanggan(Scanner scanner, User user) {
         while (true) {
             System.out.println("\n=== MENU PELANGGAN ===");
@@ -179,6 +234,16 @@ public class main_bengkel {
         }
     }
 
+    // =====================
+    // Fungsi kelolaUser()
+    // =====================
+    // Menu CRUD user (admin & pelanggan):
+    // 1. Lihat Semua User
+    // 2. Tambah User
+    // 3. Update Password User
+    // 4. Hapus User
+    // 5. Kembali
+    // =====================
     private static void kelolaUser(Scanner scanner) {
         while (true) {
             System.out.println("\n=== KELOLA USER ===");
@@ -213,6 +278,258 @@ public class main_bengkel {
         }
     }
 
+    // =====================
+    // Fungsi kelolaMobil()
+    // =====================
+    // Menu untuk admin melihat dan menghapus data mobil pelanggan
+    // =====================
+    private static void kelolaMobil(Scanner scanner) {
+        while (true) {
+            System.out.println("\n=== KELOLA MOBIL ===");
+            System.out.println("1. Lihat Data Mobil Pelanggan");
+            System.out.println("2. Hapus Mobil Pelanggan");
+            System.out.println("3. Kembali");
+            System.out.print("Pilih menu (1-3): ");
+            
+            int pilihan = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            
+            switch (pilihan) {
+                case 1:
+                    lihatDataMobilPelanggan();
+                    break;
+                case 2:
+                    hapusMobilPelanggan(scanner);
+                    break;
+                case 3:
+                    return;
+                default:
+                    System.out.println("Pilihan tidak valid!");
+            }
+        }
+    }
+
+    // =====================
+    // Fungsi kelolaTeknisi()
+    // =====================
+    // Menu CRUD teknisi:
+    // 1. Lihat Semua Teknisi
+    // 2. Tambah Teknisi
+    // 3. Update Status Teknisi
+    // 4. Hapus Teknisi
+    // 5. Kembali
+    // =====================
+    private static void kelolaTeknisi(Scanner scanner) {
+        while (true) {
+            System.out.println("\n=== KELOLA TEKNISI ===");
+            System.out.println("1. Lihat Semua Teknisi");
+            System.out.println("2. Tambah Teknisi");
+            System.out.println("3. Update Status Teknisi");
+            System.out.println("4. Hapus Teknisi");
+            System.out.println("5. Laporan Perfoma Teknisi");
+            System.out.println("6. Kembali");
+            System.out.print("Pilih menu (1-6): ");
+            
+            int pilihan = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            
+            switch (pilihan) {
+                case 1:
+                    lihatSemuaTeknisi();
+                    break;
+                case 2:
+                    tambahTeknisi(scanner);
+                    break;
+                case 3:
+                    updateStatusTeknisi(scanner);
+                    break;
+                case 4:
+                    hapusTeknisi(scanner);
+                    break;
+                case 5:
+                    try (Connection conn = DBConnection.getConnection()) {
+                        report.tampilkanLaporanTeknisiMingguan(conn);
+                    } catch (Exception e) {
+                        System.out.println("Gagal menampilkan laporan teknisi mingguan: " + e.getMessage());
+                    }
+                    break;
+                case 6:
+                    return;
+                default:
+                    System.out.println("Pilihan tidak valid!");
+            }
+        }
+    }
+
+    // =====================
+    // Fungsi kelolaJenisServis()
+    // =====================
+    // Menu CRUD jenis servis:
+    // 1. Lihat Semua Jenis Servis
+    // 2. Tambah Jenis Servis
+    // 3. Update Jenis Servis
+    // 4. Hapus Jenis Servis
+    // 5. Kembali
+    // =====================
+    private static void kelolaJenisServis(Scanner scanner) {
+        while (true) {
+            System.out.println("\n=== KELOLA JENIS SERVIS ===");
+            System.out.println("1. Lihat Semua Jenis Servis");
+            System.out.println("2. Tambah Jenis Servis");
+            System.out.println("3. Update Jenis Servis");
+            System.out.println("4. Hapus Jenis Servis");
+            System.out.println("5. Kembali");
+            System.out.print("Pilih menu (1-5): ");
+            
+            int pilihan = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            
+            switch (pilihan) {
+                case 1:
+                    lihatSemuaJenisServis();
+                    break;
+                case 2:
+                    tambahJenisServis(scanner);
+                    break;
+                case 3:
+                    updateJenisServis(scanner);
+                    break;
+                case 4:
+                    hapusJenisServis(scanner);
+                    break;
+                case 5:
+                    return;
+                default:
+                    System.out.println("Pilihan tidak valid!");
+            }
+        }
+    }
+
+    // =====================
+    // Fungsi kelolaBooking()
+    // =====================
+    // Menu untuk admin mengelola booking:
+    // 1. Lihat Booking Aktif
+    // 2. Lihat Semua Booking
+    // 3. Proses Booking
+    // 4. Selesai Booking
+    // 5. Tolak Booking
+    // 6. Kembali
+    // =====================
+    private static void kelolaBooking(Scanner scanner) {
+        while (true) {
+            System.out.println("\n=== KELOLA BOOKING ===");
+            System.out.println("1. Lihat Booking Aktif");
+            System.out.println("2. Lihat Semua Booking");
+            System.out.println("3. Proses Booking");
+            System.out.println("4. Selesai Booking");
+            System.out.println("5. Tolak Booking");
+            System.out.println("6. Laporan Ringkasan Status Booking");
+            System.out.println("7. Kembali");
+            System.out.print("Pilih menu (1-7): ");
+            
+            int pilihan = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            
+            switch (pilihan) {
+                case 1:
+                    try (Connection conn = DBConnection.getConnection()) {
+                        BookingAktifView.tampilkanBookingAktif(conn);
+                    } catch (Exception e) {
+                        System.out.println("Gagal menampilkan booking aktif: " + e.getMessage());
+                    }
+                    break;
+                case 2:
+                    lihatSemuaBooking();
+                    break;
+                case 3:
+                    prosesBooking(scanner);
+                    break;
+                case 4:
+                    selesaiBooking(scanner);
+                    break;
+                case 5:
+                    tolakBooking(scanner);
+                    break;
+                case 6:
+                    try (Connection conn = DBConnection.getConnection()) {
+                        report.tampilkanRingkasanStatusBooking(conn);
+                    } catch (Exception e) {
+                        System.out.println("Gagal menampilkan laporan ringkasan status booking: " + e.getMessage());
+                    }
+                    break;
+                case 7:
+                    return;
+                default:
+                    System.out.println("Pilihan tidak valid!");
+            }
+        }
+    }
+
+    // =====================
+    // Fungsi lihatRiwayatTransaksi()
+    // =====================
+    // Menampilkan riwayat transaksi booking yang sudah selesai
+    // dan laporan pendapatan
+    // =====================
+    private static void lihatRiwayatTransaksi() {
+        System.out.println("\n=== RIWAYAT TRANSAKSI ===");
+        List<booking_servis> bookings = bookingDAO.readCompletedTransactions();
+        if (bookings.isEmpty()) {
+            System.out.println("Belum ada data transaksi selesai.");
+            return;
+        }
+
+        // Prepare data for formatted table
+        String[] headers = {"No Transaksi", "Tanggal", "Jam", "Status", "Mobil", "Pelanggan", "Teknisi", "Total Bayar"};
+        String[][] data = new String[bookings.size()][8];
+        
+        int totalIncome = 0;
+        int rowIndex = 0;
+        
+        for (booking_servis bs : bookings) {
+            String mobilInfo = (bs.getMerk() != null && bs.getTipe() != null) ? 
+                              bs.getMerk() + " " + bs.getTipe() : "Unknown";
+            String ownerName = (bs.getOwnerName() != null) ? bs.getOwnerName() : "Unknown";
+            String teknisiName = (bs.getTeknisiName() != null) ? bs.getTeknisiName() : "Unknown";
+            int totalPayment = bs.getTotalPayment();
+            totalIncome += totalPayment;
+            
+            data[rowIndex][0] = String.valueOf(bs.getno_transaksi());
+            data[rowIndex][1] = bs.gettanggal().toString();
+            data[rowIndex][2] = bs.getjam().toString();
+            data[rowIndex][3] = bs.getstatusBook();
+            data[rowIndex][4] = mobilInfo;
+            data[rowIndex][5] = ownerName;
+            data[rowIndex][6] = teknisiName;
+            data[rowIndex][7] = formatCurrency(totalPayment);
+            rowIndex++;
+        }
+        
+        printFormattedTable(headers, data);
+        
+        System.out.println("\n=== TOTAL PENDAPATAN ===");
+        System.out.printf("Total pendapatan dari semua transaksi selesai: %s\n", formatCurrency(totalIncome));
+    }
+
+    // =====================
+    // Fungsi-fungsi pendukung lain
+    // =====================
+    // - lihatSemuaUser(): Menampilkan seluruh user
+    // - tambahUser(): Menambah user baru
+    // - updatePasswordUser(): Update password user
+    // - hapusUser(): Hapus user
+    // - lihatDataMobilPelanggan(): Menampilkan mobil pelanggan
+    // - hapusMobilPelanggan(): Hapus mobil pelanggan
+    // - lihatSemuaBooking(): Menampilkan seluruh booking
+    // - prosesBooking(): Proses booking status "Menunggu"
+    // - selesaiBooking(): Menyelesaikan booking aktif
+    // - tolakBooking(): Menolak booking status "Menunggu"
+    // - printFormattedTable(), printFormattedRow(): Utility untuk tampilan tabel
+    // - formatCurrency(): Format angka ke rupiah
+    // - generateTransactionNumber(): Membuat nomor transaksi unik
+    // - validateAndParseTime(), validateDateInput(): Validasi input waktu/tanggal
+    // - dan lain-lain
     private static void lihatSemuaUser() {
         System.out.println("\n=== DAFTAR USER ===");
         List<User> users = userDAO.readAllUser();
@@ -297,32 +614,6 @@ public class main_bengkel {
         userDAO.deleteUser(idUser);
     }
 
-    private static void kelolaMobil(Scanner scanner) {
-        while (true) {
-            System.out.println("\n=== KELOLA MOBIL ===");
-            System.out.println("1. Lihat Data Mobil Pelanggan");
-            System.out.println("2. Hapus Mobil Pelanggan");
-            System.out.println("3. Kembali");
-            System.out.print("Pilih menu (1-3): ");
-            
-            int pilihan = scanner.nextInt();
-            scanner.nextLine(); // consume newline
-            
-            switch (pilihan) {
-                case 1:
-                    lihatDataMobilPelanggan();
-                    break;
-                case 2:
-                    hapusMobilPelanggan(scanner);
-                    break;
-                case 3:
-                    return;
-                default:
-                    System.out.println("Pilihan tidak valid!");
-            }
-        }
-    }
-
     private static void lihatDataMobilPelanggan() {
         System.out.println("\n=== DATA MOBIL PELANGGAN ===");
         List<mobil> allMobil = mobilDAO.readAllMobilWithUserInfo();
@@ -380,96 +671,6 @@ public class main_bengkel {
             System.out.println("Mobil berhasil dihapus!");
         } catch (Exception e) {
             System.out.println("Gagal menghapus mobil: " + e.getMessage());
-        }
-    }
-
-    private static void lihatRiwayatTransaksi() {
-        System.out.println("\n=== RIWAYAT TRANSAKSI ===");
-        List<booking_servis> bookings = bookingDAO.readCompletedTransactions();
-        if (bookings.isEmpty()) {
-            System.out.println("Belum ada data transaksi selesai.");
-            return;
-        }
-
-        // Prepare data for formatted table
-        String[] headers = {"No Transaksi", "Tanggal", "Jam", "Status", "Mobil", "Pelanggan", "Teknisi", "Total Bayar"};
-        String[][] data = new String[bookings.size()][8];
-        
-        int totalIncome = 0;
-        int rowIndex = 0;
-        
-        for (booking_servis bs : bookings) {
-            String mobilInfo = (bs.getMerk() != null && bs.getTipe() != null) ? 
-                              bs.getMerk() + " " + bs.getTipe() : "Unknown";
-            String ownerName = (bs.getOwnerName() != null) ? bs.getOwnerName() : "Unknown";
-            String teknisiName = (bs.getTeknisiName() != null) ? bs.getTeknisiName() : "Unknown";
-            int totalPayment = bs.getTotalPayment();
-            totalIncome += totalPayment;
-            
-            data[rowIndex][0] = String.valueOf(bs.getno_transaksi());
-            data[rowIndex][1] = bs.gettanggal().toString();
-            data[rowIndex][2] = bs.getjam().toString();
-            data[rowIndex][3] = bs.getstatusBook();
-            data[rowIndex][4] = mobilInfo;
-            data[rowIndex][5] = ownerName;
-            data[rowIndex][6] = teknisiName;
-            data[rowIndex][7] = formatCurrency(totalPayment);
-            rowIndex++;
-        }
-        
-        printFormattedTable(headers, data);
-        
-        System.out.println("\n=== TOTAL PENDAPATAN ===");
-        System.out.printf("Total pendapatan dari semua transaksi selesai: %s\n", formatCurrency(totalIncome));
-    }
-
-    private static void kelolaBooking(Scanner scanner) {
-        while (true) {
-            System.out.println("\n=== KELOLA BOOKING ===");
-            System.out.println("1. Lihat Booking Aktif");
-            System.out.println("2. Lihat Semua Booking");
-            System.out.println("3. Proses Booking");
-            System.out.println("4. Selesai Booking");
-            System.out.println("5. Tolak Booking");
-            System.out.println("6. Laporan Ringkasan Status Booking");
-            System.out.println("7. Kembali");
-            System.out.print("Pilih menu (1-7): ");
-            
-            int pilihan = scanner.nextInt();
-            scanner.nextLine(); // consume newline
-            
-            switch (pilihan) {
-                case 1:
-                    try (Connection conn = DBConnection.getConnection()) {
-                        BookingAktifView.tampilkanBookingAktif(conn);
-                    } catch (Exception e) {
-                        System.out.println("Gagal menampilkan booking aktif: " + e.getMessage());
-                    }
-                    break;
-                case 2:
-                    lihatSemuaBooking();
-                    break;
-                case 3:
-                    prosesBooking(scanner);
-                    break;
-                case 4:
-                    selesaiBooking(scanner);
-                    break;
-                case 5:
-                    tolakBooking(scanner);
-                    break;
-                case 6:
-                    try (Connection conn = DBConnection.getConnection()) {
-                        report.tampilkanRingkasanStatusBooking(conn);
-                    } catch (Exception e) {
-                        System.out.println("Gagal menampilkan laporan ringkasan status booking: " + e.getMessage());
-                    }
-                    break;
-                case 7:
-                    return;
-                default:
-                    System.out.println("Pilihan tidak valid!");
-            }
         }
     }
 
@@ -681,48 +882,6 @@ public class main_bengkel {
         return bookingDAO.calculateTotalPayment(bookingId);
     }
 
-    private static void kelolaTeknisi(Scanner scanner) {
-        while (true) {
-            System.out.println("\n=== KELOLA TEKNISI ===");
-            System.out.println("1. Lihat Semua Teknisi");
-            System.out.println("2. Tambah Teknisi");
-            System.out.println("3. Update Status Teknisi");
-            System.out.println("4. Hapus Teknisi");
-            System.out.println("5. Laporan Perfoma Teknisi");
-            System.out.println("6. Kembali");
-            System.out.print("Pilih menu (1-6): ");
-            
-            int pilihan = scanner.nextInt();
-            scanner.nextLine(); // consume newline
-            
-            switch (pilihan) {
-                case 1:
-                    lihatSemuaTeknisi();
-                    break;
-                case 2:
-                    tambahTeknisi(scanner);
-                    break;
-                case 3:
-                    updateStatusTeknisi(scanner);
-                    break;
-                case 4:
-                    hapusTeknisi(scanner);
-                    break;
-                case 5:
-                    try (Connection conn = DBConnection.getConnection()) {
-                        report.tampilkanLaporanTeknisiMingguan(conn);
-                    } catch (Exception e) {
-                        System.out.println("Gagal menampilkan laporan teknisi mingguan: " + e.getMessage());
-                    }
-                    break;
-                case 6:
-                    return;
-                default:
-                    System.out.println("Pilihan tidak valid!");
-            }
-        }
-    }
-
     private static void lihatSemuaTeknisi() {
         System.out.println("\n=== DAFTAR TEKNISI ===");
         List<teknisi> teknisiList = teknisiDAO.readAllteknisi();
@@ -783,40 +942,6 @@ public class main_bengkel {
         scanner.nextLine(); // consume newline
         
         teknisiDAO.deleteTeknisi(idTeknisi);
-    }
-
-    private static void kelolaJenisServis(Scanner scanner) {
-        while (true) {
-            System.out.println("\n=== KELOLA JENIS SERVIS ===");
-            System.out.println("1. Lihat Semua Jenis Servis");
-            System.out.println("2. Tambah Jenis Servis");
-            System.out.println("3. Update Jenis Servis");
-            System.out.println("4. Hapus Jenis Servis");
-            System.out.println("5. Kembali");
-            System.out.print("Pilih menu (1-5): ");
-            
-            int pilihan = scanner.nextInt();
-            scanner.nextLine(); // consume newline
-            
-            switch (pilihan) {
-                case 1:
-                    lihatSemuaJenisServis();
-                    break;
-                case 2:
-                    tambahJenisServis(scanner);
-                    break;
-                case 3:
-                    updateJenisServis(scanner);
-                    break;
-                case 4:
-                    hapusJenisServis(scanner);
-                    break;
-                case 5:
-                    return;
-                default:
-                    System.out.println("Pilihan tidak valid!");
-            }
-        }
     }
 
     private static void lihatSemuaJenisServis() {
