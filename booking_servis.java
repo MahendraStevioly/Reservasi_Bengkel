@@ -1,4 +1,3 @@
-
 import java.sql.Date;
 import java.sql.Time;
 
@@ -7,6 +6,10 @@ public class booking_servis {
     private Date tanggal;
     private Time jam;
     private String statusBook;
+
+    // Additional fields for optimized queries
+    private String merk, tipe, ownerName, teknisiName;
+    private int totalPayment;
 
     //cosntructor
     public booking_servis(int idBooking, int idMobil, int idTeknisi, Date tanggal, Time jam, String statusBook, int no_transaksi){
@@ -66,5 +69,39 @@ public class booking_servis {
     }
     public void setno_transaksi(int no_transaksi){
         this.no_transaksi = no_transaksi;
+    }
+
+    // Method to set additional information from JOIN queries
+    public void setAdditionalInfo(String merk, String tipe, String ownerName, String teknisiName) {
+        this.merk = merk;
+        this.tipe = tipe;
+        this.ownerName = ownerName;
+        this.teknisiName = teknisiName;
+    }
+
+    // Method to set total payment
+    public void setTotalPayment(int totalPayment) {
+        this.totalPayment = totalPayment;
+    }
+
+    // Getters for additional information
+    public String getMerk() {
+        return merk;
+    }
+
+    public String getTipe() {
+        return tipe;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public String getTeknisiName() {
+        return teknisiName;
+    }
+
+    public int getTotalPayment() {
+        return totalPayment;
     }
 }

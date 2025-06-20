@@ -173,4 +173,145 @@ public class booking_servisDAO {
             }
         }
     }
+
+    // Get the last booking ID
+    public int getLastBookingId() throws SQLException {
+        String sql = "SELECT MAX(id_booking) as last_id FROM booking_servis";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt("last_id");
+            }
+            return 0;
+        }
+    }
+
+    // Optimized method to get bookings with user and car information in single query
+    public List<booking_servis> readBookingsWithDetails() {
+        List<booking_servis> list = new ArrayList<>();
+        String sql = "SELECT bs.*, m.merk, m.tipe, u.nama as owner_name, t.nama as teknisi_name " +
+                    "FROM booking_servis bs " +
+                    "LEFT JOIN mobil m ON bs.id_mobil = m.id_mobil " +
+                    "LEFT JOIN user u ON m.fk_user = u.id_user " +
+                    "LEFT JOIN teknisi t ON bs.id_teknisi = t.id_teknisi " +
+                    "ORDER BY bs.tanggal_booking, bs.jam_booking";
+        
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                booking_servis bs = new booking_servis(
+                    rs.getInt("id_booking"),
+                    rs.getInt("id_mobil"),
+                    rs.getInt("id_teknisi"),
+                    rs.getDate("tanggal_booking"),
+                    rs.getTime("jam_booking"),
+                    rs.getString("status_booking"),
+                    rs.getInt("no_transaksi")
+                );
+                // Store additional info in the object for display purposes
+                bs.setAdditionalInfo(rs.getString("merk"), rs.getString("tipe"), 
+                                   rs.getString("owner_name"), rs.getString("teknisi_name"));
+                list.add(bs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Optimized method to get bookings for specific user with details
+    public List<booking_servis> readBookingsByUserId(int userId) {
+        List<booking_servis> list = new ArrayList<>();
+        String sql = "SELECT bs.*, m.merk, m.tipe, t.nama as teknisi_name " +
+                    "FROM booking_servis bs " +
+                    "LEFT JOIN mobil m ON bs.id_mobil = m.id_mobil " +
+                    "LEFT JOIN teknisi t ON bs.id_teknisi = t.id_teknisi " +
+                    "WHERE m.fk_user = ? " +
+                    "ORDER BY bs.tanggal_booking, bs.jam_booking";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                booking_servis bs = new booking_servis(
+                    rs.getInt("id_booking"),
+                    rs.getInt("id_mobil"),
+                    rs.getInt("id_teknisi"),
+                    rs.getDate("tanggal_booking"),
+                    rs.getTime("jam_booking"),
+                    rs.getString("status_booking"),
+                    rs.getInt("no_transaksi")
+                );
+                bs.setAdditionalInfo(rs.getString("merk"), rs.getString("tipe"), 
+                                   null, rs.getString("teknisi_name"));
+                list.add(bs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Optimized method to calculate total payment for a booking in single query
+    public int calculateTotalPayment(int bookingId) {
+        String sql = "SELECT SUM(js.harga) as total " +
+                    "FROM detail_servis ds " +
+                    "JOIN jenis_servis js ON ds.id_jenis_servis = js.id_jenis_servis " +
+                    "WHERE ds.id_booking = ?";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Optimized method to get completed transactions with total income
+    public List<booking_servis> readCompletedTransactions() {
+        List<booking_servis> list = new ArrayList<>();
+        String sql = "SELECT bs.*, m.merk, m.tipe, u.nama as owner_name, t.nama as teknisi_name, " +
+                    "SUM(js.harga) as total_payment " +
+                    "FROM booking_servis bs " +
+                    "LEFT JOIN mobil m ON bs.id_mobil = m.id_mobil " +
+                    "LEFT JOIN user u ON m.fk_user = u.id_user " +
+                    "LEFT JOIN teknisi t ON bs.id_teknisi = t.id_teknisi " +
+                    "LEFT JOIN detail_servis ds ON bs.id_booking = ds.id_booking " +
+                    "LEFT JOIN jenis_servis js ON ds.id_jenis_servis = js.id_jenis_servis " +
+                    "WHERE bs.status_booking = 'Selesai' " +
+                    "GROUP BY bs.id_booking, bs.id_mobil, bs.id_teknisi, bs.tanggal_booking, " +
+                    "bs.jam_booking, bs.status_booking, bs.no_transaksi, m.merk, m.tipe, u.nama, t.nama " +
+                    "ORDER BY bs.tanggal_booking, bs.jam_booking";
+        
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                booking_servis bs = new booking_servis(
+                    rs.getInt("id_booking"),
+                    rs.getInt("id_mobil"),
+                    rs.getInt("id_teknisi"),
+                    rs.getDate("tanggal_booking"),
+                    rs.getTime("jam_booking"),
+                    rs.getString("status_booking"),
+                    rs.getInt("no_transaksi")
+                );
+                bs.setAdditionalInfo(rs.getString("merk"), rs.getString("tipe"), 
+                                   rs.getString("owner_name"), rs.getString("teknisi_name"));
+                bs.setTotalPayment(rs.getInt("total_payment"));
+                list.add(bs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

@@ -4,16 +4,15 @@ import java.util.List;
 
 public class detail_servisDAO {
     //create
-    public void createDetailServis(detail_servis Detail_servis) throws SQLException {
+    public void createDetailServis(detail_servis Detail_servis, Connection conn) throws SQLException {
         String sql = "INSERT INTO detail_servis (id_booking, id_jenis_servis) VALUES (?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, Detail_servis.getidBooking());
             stmt.setInt(2, Detail_servis.getidJenisServis());
             stmt.executeUpdate();
             System.out.println("Detail servis berhasil ditambahkan!");
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw e; // Re-throw the exception to handle it in the calling method
         }
     }
 

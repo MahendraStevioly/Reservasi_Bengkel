@@ -107,5 +107,75 @@ public class userDAO {
         }
         return null;
     }
+
+    // Optimized login method - queries only specific user instead of loading all
+    public User authenticateUser(String username, String password) {
+        String sql = "SELECT * FROM user WHERE username = ?";
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                String dbPassword = rs.getString("password");
+                String role = rs.getString("role");
+                if (role.equals("PELANGGAN")) {
+                    // If password in DB is null/empty, allow any password (including empty)
+                    if (dbPassword == null || dbPassword.trim().isEmpty()) {
+                        return new User(
+                            rs.getInt("id_user"),
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            User.Role.fromDb(rs.getString("role")),
+                            rs.getString("nama"),
+                            rs.getString("no_tlp")
+                        );
+                    } else {
+                        // If password is set in DB, must match
+                        if (dbPassword.equals(password)) {
+                            return new User(
+                                rs.getInt("id_user"),
+                                rs.getString("username"),
+                                rs.getString("password"),
+                                User.Role.fromDb(rs.getString("role")),
+                                rs.getString("nama"),
+                                rs.getString("no_tlp")
+                            );
+                        }
+                    }
+                } else {
+                    // For admin, password must match
+                    if (dbPassword != null && dbPassword.equals(password)) {
+                        return new User(
+                            rs.getInt("id_user"),
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            User.Role.fromDb(rs.getString("role")),
+                            rs.getString("nama"),
+                            rs.getString("no_tlp")
+                        );
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Method to check if username exists (for validation)
+    public boolean isUsernameExists(String username) {
+        String sql = "SELECT COUNT(*) FROM user WHERE username = ?";
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
 

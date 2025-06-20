@@ -1,6 +1,7 @@
 public class mobil {
     private int idMobil, tahun, fk_user;
     private String merk, tipe;
+    private String ownerName; // Additional field for JOIN queries
 
     //constructor
     public mobil(int idMobil, String merk, String tipe, int tahun, int fk_user){
@@ -27,6 +28,9 @@ public class mobil {
     public int getfk_user(){
         return fk_user;
     }
+    public String getOwnerName(){
+        return ownerName;
+    }
 
     //setter
     public void setidMobil(int idMobil){
@@ -43,5 +47,8 @@ public class mobil {
     }
     public void setfk_user(int fk_user){
         this.fk_user = fk_user;
+    }
+    public void setOwnerName(String ownerName){
+        this.ownerName = ownerName;
     }
 }

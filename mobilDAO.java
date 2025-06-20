@@ -61,11 +61,11 @@ public class mobilDAO {
             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 mobil m = new mobil(
-                    rs.getInt("id_mobil"),
-                    rs.getString("merk"),
-                    rs.getString("tipe"),
-                    rs.getInt("tahun"),
-                    rs.getInt("fk_user")
+                        rs.getInt("id_mobil"),
+                        rs.getString("merk"),
+                        rs.getString("tipe"),
+                        rs.getInt("tahun"),
+                        rs.getInt("fk_user")
                 );
                 list.add(m);
             }
@@ -91,7 +91,7 @@ public class mobilDAO {
     public mobil getMobilById(int id) {
         String sql = "SELECT * FROM mobil WHERE id_mobil = ?";
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -107,5 +107,32 @@ public class mobilDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    // Optimized method to get all cars with user information in single query
+    public List<mobil> readAllMobilWithUserInfo() {
+        List<mobil> list = new ArrayList<>();
+        String sql = "SELECT m.*, u.nama as owner_name FROM mobil m " +
+                    "LEFT JOIN user u ON m.fk_user = u.id_user " +
+                    "ORDER BY m.id_mobil";
+        try (Connection conn = DBConnection.getConnection();
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                mobil m = new mobil(
+                    rs.getInt("id_mobil"),
+                    rs.getString("merk"),
+                    rs.getString("tipe"),
+                    rs.getInt("tahun"),
+                    rs.getInt("fk_user")
+                );
+                // Store owner name in the mobil object for display
+                m.setOwnerName(rs.getString("owner_name"));
+                list.add(m);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }
